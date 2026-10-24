@@ -1,0 +1,4 @@
+question_id,question,A,B,C,D,expected_state
+EX1,"Which device produces a narrow, intense beam of light in which all the waves are in step?",Laser,Lens,Prism,Mirror,Conflicting
+EX2,How is the information on a compact disc read?,By a laser beam,By a magnetic head,By a needle in a groove,By an electric current,Insufficient
+EX3,What is the unit of force?,Joule,Newton,Watt,Pascal,Supported
