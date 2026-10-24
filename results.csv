@@ -1,0 +1,4 @@
+question_id,expected_state,conventional_rag_answer,relevance,sufficiency,evidence_answer,memory_answer,conflict,evidence_state,action
+EX1,Conflicting,C,yes,yes,C,A,Yes,Conflicting,Report the conflict
+EX2,Insufficient,A,yes,no,A,A,n/a,Insufficient,Abstain
+EX3,Supported,B,yes,yes,B,B,No,Supported,Answer

@@ -85,6 +85,16 @@ Reply in JSON: {{"answer": "<option letter>", "explanation": "<one sentence>"}}"
     result = ask_llm(prompt)
     return letter(result.get("answer")), result.get("explanation", "")
 
+STOPWORDS = {"a", "an", "the", "by", "of", "in", "on", "to", "and", "or",
+             "is", "it", "its", "with", "for", "from", "at", "as", "be"}
+
+
+def option_in_quote(option_text, quote):
+    """True if a key word of the chosen option appears in the quoted sentence."""
+    words = [w for w in tokenize(option_text) if w not in STOPWORDS]
+    quote = quote.lower()
+    return bool(words) and any(w in quote for w in words)
+
 
 def check_evidence(q, found):
     prompt = f"""You are checking evidence. Do NOT use your own knowledge.
@@ -112,9 +122,11 @@ Reply in JSON: {{"quote": "", "evidence_answer": "", "passage_id": "", "relevant
     quote = str(result.get("quote", "none")).strip()
     answer = letter(result.get("evidence_answer"))
     found_quote = quote.lower() not in ("", "none")
+    opts = get_options(q)
+    grounded = found_quote and answer in opts and option_in_quote(opts[answer], quote)
     return {
         "relevant": str(result.get("relevant", "no")).strip().lower(),
-        "sufficient": "yes" if found_quote and answer != "none" else "no",
+        "sufficient": "yes" if grounded else "no",
         "evidence_answer": answer,
         "passage_id": str(result.get("passage_id", "none")).replace("Passage", "").strip(),
         "quote": quote,
@@ -190,7 +202,8 @@ def report(r):
         "",
         "EduEviGate checks:",
         f"   Relevance    : {ev['relevant']}",
-        f"   Sufficiency  : {ev['sufficient']}  (passages support: {ev['evidence_answer']})",
+        f"   Sufficiency  : {ev['sufficient']}  (model picked: {ev['evidence_answer']}, "
+        f"found in quote: {'yes' if ev['sufficient'] == 'yes' else 'no'})",
         f"   Memory answer: {r['memory_answer']}) {opts.get(r['memory_answer'], '')}",
         f"   Conflict     : {r['conflict']}",
         f"   Evidence state: {r['state']}",
