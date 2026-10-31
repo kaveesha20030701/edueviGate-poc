@@ -1,0 +1,96 @@
+======================================================================
+QUESTION KSQA-Q2133-B: Which fishing method led to the downfall of a fishery that had thrived for 400 years?
+A) Factory trawlers
+B) Gillnetting
+C) Longline fishing
+D) Purse seining
+
+Retrieved passages: 665 (score given), 1839 (score given), 1216 (score given)
+
+Conventional RAG answered: C) Longline fishing
+   its explanation: Longline fishing led to the downfall of the western Atlantic cod fishery that had thrived for 400 years.
+
+EduEviGate checks:
+   Relevance    : yes
+   Sufficiency  : yes  (model picked: C, answer read from quote: C)
+   Memory answer: A) Factory trawlers
+   Conflict     : Yes
+   Evidence state: Conflicting
+   Action       : Report the conflict
+   Judge's reason: The passage directly states that longline fishing led to the downfall of the fishery.
+   Quoted evidence: While it was a hugely productive fishery for 400 years, the introduction of modern longline fishing techniques in the 1980s caused it to become unsustainable.
+
+Message to student: Your course material says C) Longline fishing (passage 665). This differs from widely accepted knowledge, which says A) Factory trawlers. Follow your course material, and check with your teacher.
+Expected state: Conflicting -> CORRECT
+======================================================================
+QUESTION KSQA-Q2133-C: Which fishing method led to the downfall of a fishery that had thrived for 400 years?
+A) Factory trawlers
+B) Gillnetting
+C) Longline fishing
+D) Purse seining
+
+Retrieved passages: 1839 (score given), 1216 (score given), 1498 (score given)
+
+Conventional RAG answered: none) 
+   its explanation: The given passages do not mention any specific fishing method leading to the downfall of a fishery that had thrived for 400 years.
+
+EduEviGate checks:
+   Relevance    : no
+   Sufficiency  : no  (model picked: none, answer read from quote: none)
+   Memory answer: A) Factory trawlers
+   Conflict     : n/a
+   Evidence state: Insufficient
+   Action       : Abstain
+   Judge's reason: The passages do not mention any specific fishing method that led to the downfall of a fishery that had thrived for 400 years.
+   Quoted evidence: none
+
+Message to student: The course material doesn't contain enough information to answer this, so I can't give a supported answer.
+Expected state: Insufficient -> CORRECT
+======================================================================
+QUESTION KSQA-Q0478-B: Among the following substances, which one serves as an abrasive in sandpaper and forms a covalent network solid akin to silicon dioxide (sand)?
+A) Aluminum oxide
+B) Calcium carbonate
+C) Magnesium silicate
+D) Silicon carbide
+
+Retrieved passages: 790 (score given), 899 (score given), 897 (score given)
+
+Conventional RAG answered: A) Aluminum oxide
+   its explanation: Aluminum oxide is mentioned as an example of a covalent network solid like silicon dioxide, used as an abrasive on sandpaper.
+
+EduEviGate checks:
+   Relevance    : yes
+   Sufficiency  : yes  (model picked: D, answer read from quote: A)
+   Memory answer: D) Silicon carbide
+   Conflict     : Yes
+   Evidence state: Conflicting
+   Action       : Report the conflict
+   Judge's reason: The passage directly mentions aluminum oxide as the abrasive on sandpaper and covalent network solid.
+   Quoted evidence: Covalent network solids include crystals of diamond, silicon, some other nonmetals, and some covalent compounds such as silicon dioxide (sand) and aluminum oxide (corundum, the abrasive on sandpaper).
+
+Message to student: Your course material says A) Aluminum oxide (passage 790). This differs from widely accepted knowledge, which says D) Silicon carbide. Follow your course material, and check with your teacher.
+Expected state: Conflicting -> CORRECT
+======================================================================
+QUESTION KSQA-Q0478-C: Among the following substances, which one serves as an abrasive in sandpaper and forms a covalent network solid akin to silicon dioxide (sand)?
+A) Aluminum oxide
+B) Calcium carbonate
+C) Magnesium silicate
+D) Silicon carbide
+
+Retrieved passages: 899 (score given), 897 (score given), 791 (score given)
+
+Conventional RAG answered: D) Silicon carbide
+   its explanation: Silicon carbide forms a covalent network solid similar to silicon dioxide and is used as an abrasive.
+
+EduEviGate checks:
+   Relevance    : partly
+   Sufficiency  : no  (model picked: none, answer read from quote: none)
+   Memory answer: D) Silicon carbide
+   Conflict     : n/a
+   Evidence state: Insufficient
+   Action       : Abstain
+   Judge's reason: The passage discusses silicon's allotropes but does not mention silicon carbide as an abrasive.
+   Quoted evidence: Silicon, however, stands out among the nonmetals for its remarkable diversity of allotropes. Most people know of silicon diamond, silicon graphite, and silicon charcoal, but fewer people know of the recent discovery of silicon fullerenes, silicon nanotubes, and silicon graphene. These various forms of silicon demonstrate the element's unique ability to form different structural arrangements, each with distinct properties.
+
+Message to student: The course material doesn't contain enough information to answer this, so I can't give a supported answer.
+Expected state: Insufficient -> CORRECT

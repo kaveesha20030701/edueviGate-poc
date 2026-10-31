@@ -1,0 +1,5 @@
+question_id,subject,question_type,expected_state,expected_option,rag_answer,relevance,sufficient,evidence_answer,memory_answer,conflict,state,action,quote,seconds,model
+KSQA-Q2133-B,Biology,multihop_distant,Conflicting,C,C,yes,yes,C,A,Yes,Conflicting,Report the conflict,The introduction of modern longline fishing techniques in the 1980s caused it to become unsustainable.,275.5,llama3.1:8b
+KSQA-Q2133-C,Biology,multihop_distant,Insufficient,none,D,yes,no,none,A,n/a,Insufficient,Abstain,"The rapid expansion of fish farms near coastal areas has led to increased competition for food, spread of diseases, and genetic contamination of wild fish stocks.",315.4,llama3.1:8b
+KSQA-Q0478-B,Chemistry,multihop_direct,Conflicting,A,A,yes,yes,A,D,Yes,Conflicting,Report the conflict,"aluminum oxide (corundum, the abrasive on sandpaper)",225.7,llama3.1:8b
+KSQA-Q0478-C,Chemistry,multihop_direct,Insufficient,none,D,yes,no,none,D,n/a,Insufficient,Abstain,"Silicon, however, stands out among the nonmetals for its remarkable diversity of allotropes.",200.8,llama3.1:8b
