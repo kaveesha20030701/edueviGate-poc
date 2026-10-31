@@ -3,17 +3,18 @@
 retrieve -> conventional RAG answer -> evidence check -> closed-book answer -> decide -> message
 """
 import json
+import os
 import re
 
 import ollama
 import pandas as pd
 from rank_bm25 import BM25Okapi
 
-MODEL = "llama3.1:8b"   # change to "llama3.2:3b" if your laptop is too slow
-TOP_K = 3               # how many passages to retrieve
+MODEL = os.environ.get("EDUEVIGATE_MODEL", "llama3.1:8b")  # or "qwen2.5:7b"
+TOP_K = 3               # how many passages to use
+CONTEXT_WINDOW = 8192   # tokens the model can read; KnowShiftQA passages are long
 
 
-# ---------- 1. Load the data ----------
 passages = pd.read_csv("passages.csv", dtype=str)
 questions = pd.read_csv("questions.csv", dtype=str).fillna("")
 
@@ -32,7 +33,8 @@ def ask_llm(prompt):
         model=MODEL,
         messages=[{"role": "user", "content": prompt}],
         format="json",                 # forces the model to reply in JSON
-        options={"temperature": 0},    # same input -> same output
+        options={"temperature": 0,     # same input -> same output
+                 "num_ctx": CONTEXT_WINDOW},
     )
     try:
         return json.loads(response["message"]["content"])
@@ -66,6 +68,21 @@ def retrieve(question_text):
     ]
 
 
+passage_by_id = dict(zip(passages["passage_id"], passages["text"]))
+
+
+def get_evidence(q):
+    """Use the dataset's evidence passages if the question has them, otherwise BM25.
+
+    KnowShiftQA rows come with fixed passage ids (context_ids), so every system and
+    every model sees exactly the same evidence. The hand-made examples use BM25.
+    """
+    ids = str(q.get("context_ids", "")).split()
+    if ids:
+        return [{"id": i, "text": passage_by_id[i], "score": "given"} for i in ids[:TOP_K]]
+    return retrieve(q["question"])
+
+
 def passages_text(found):
     return "\n\n".join(f"[Passage {p['id']}] {p['text']}" for p in found)
 
@@ -90,10 +107,35 @@ STOPWORDS = {"a", "an", "the", "by", "of", "in", "on", "to", "and", "or",
 
 
 def option_in_quote(option_text, quote):
-    """True if a key word of the chosen option appears in the quoted sentence."""
+    """True if ALL key words of the option appear in the quote (stricter than v3)."""
     words = [w for w in tokenize(option_text) if w not in STOPWORDS]
-    quote = quote.lower()
-    return bool(words) and any(w in quote for w in words)
+    quote_words = set(tokenize(quote))
+    return bool(words) and all(w in quote_words for w in words)
+
+
+def options_named_in_quote(q, quote):
+    """Option letters whose full text appears in the quote, e.g. 'aluminum oxide'."""
+    text = " " + " ".join(tokenize(quote)) + " "
+    return [L for L, opt in get_options(q).items()
+            if tokenize(opt) and " " + " ".join(tokenize(opt)) + " " in text]
+
+
+def answer_from_quote(q, quote, model_letter):
+    """v4: the evidence answer comes from the QUOTE, not from the model's letter.
+
+    - exactly one option named in the quote -> that option (even if the model picked another)
+    - several options named -> the model's letter, only if it is one of them
+    - no option named in full -> the model's letter, only if all its key words are in the quote
+    """
+    named = options_named_in_quote(q, quote)
+    if len(named) == 1:
+        return named[0]
+    if len(named) > 1:
+        return model_letter if model_letter in named else "none"
+    opts = get_options(q)
+    if model_letter in opts and option_in_quote(opts[model_letter], quote):
+        return model_letter
+    return "none"
 
 
 def check_evidence(q, found):
@@ -120,14 +162,15 @@ Steps:
 Reply in JSON: {{"quote": "", "evidence_answer": "", "passage_id": "", "relevant": "", "reason": ""}}"""
     result = ask_llm(prompt)
     quote = str(result.get("quote", "none")).strip()
-    answer = letter(result.get("evidence_answer"))
+    model_letter = letter(result.get("evidence_answer"))
     found_quote = quote.lower() not in ("", "none")
-    opts = get_options(q)
-    grounded = found_quote and answer in opts and option_in_quote(opts[answer], quote)
+    answer = answer_from_quote(q, quote, model_letter) if found_quote else "none"
+    grounded = answer != "none"
     return {
         "relevant": str(result.get("relevant", "no")).strip().lower(),
         "sufficient": "yes" if grounded else "no",
         "evidence_answer": answer,
+        "model_letter": model_letter,
         "passage_id": str(result.get("passage_id", "none")).replace("Passage", "").strip(),
         "quote": quote,
         "reason": result.get("reason", ""),
@@ -169,7 +212,7 @@ def student_message(q, state, evidence, memory_answer):
 
 # ---------- 6. Run everything for one question ----------
 def run_question(q):
-    found = retrieve(q["question"])
+    found = get_evidence(q)
     rag_answer, rag_explanation = conventional_rag(q, found)
     evidence = check_evidence(q, found)
     memory_answer = closed_book(q)
@@ -202,8 +245,8 @@ def report(r):
         "",
         "EduEviGate checks:",
         f"   Relevance    : {ev['relevant']}",
-        f"   Sufficiency  : {ev['sufficient']}  (model picked: {ev['evidence_answer']}, "
-        f"found in quote: {'yes' if ev['sufficient'] == 'yes' else 'no'})",
+        f"   Sufficiency  : {ev['sufficient']}  (model picked: {ev.get('model_letter', '')}, "
+        f"answer read from quote: {ev['evidence_answer']})",
         f"   Memory answer: {r['memory_answer']}) {opts.get(r['memory_answer'], '')}",
         f"   Conflict     : {r['conflict']}",
         f"   Evidence state: {r['state']}",
